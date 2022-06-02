@@ -1,11 +1,15 @@
 package com.DEMOJWT.demo.controller;
 
+import com.DEMOJWT.demo.Model.UserModel;
+import com.DEMOJWT.demo.Repository.UserRepository;
 import com.DEMOJWT.demo.dto.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,14 +20,25 @@ import java.util.stream.Collectors;
 @RestController
 public class UserController {
 
-    @PostMapping("user")
-    public User login(@RequestParam("user") String username, @RequestParam("password") String pwd) {
+    @Autowired
+    UserRepository userRepository;
 
-        String token = getJWTToken(username);
-        User user = new User();
-        user.setUser(username);
-        user.setToken(token);
-        return user;
+    @PostMapping("login")
+    public User login(@RequestBody User user) {
+
+        UserModel userModel = userRepository.findByUsername(user.getUser());
+
+        if (!(user.getPwd().equals(userModel.getPassword()))){
+            throw new RuntimeException("Usuario o contraseña incorrecta");
+        }
+
+        String token = getJWTToken(user.getUser());
+        User userOk = new User();
+        userOk.setUser(user.getUser());
+        userOk.setToken(token);
+
+        return userOk;
+
 
     }
 
