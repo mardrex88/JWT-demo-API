@@ -38,8 +38,11 @@ public class UserController {
         userOk.setToken(token);
 
         return userOk;
+    }
 
-
+    @PostMapping("register")
+    public UserModel register(@RequestBody UserModel user){
+        return  userRepository.save(user);
     }
 
     private String getJWTToken(String username) {
